@@ -150,4 +150,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    let originalSuperheroes = null;
+
+    document.getElementById('searchbtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        let searchQuery = document.getElementById('searchInput').value;
+    
+        if(searchQuery) {
+            fetch('superheroes.php?query=' + encodeURIComponent(searchQuery))
+            .then(response => response.text())
+            .then(data => {
+                let superheroes = data.split('|||');
+                let superheroInfo = '';
+    
+                if(superheroes.length === 0) {
+                    superheroInfo = '<p>Superhero not found</p>';
+                } else {
+                    superheroes = superheroes.map(superhero => JSON.parse(superhero));
+                    superheroInfo = '<h3>' + superheroes[0].alias + '</h3>';
+                    superheroInfo += '<h4>' + superheroes[0].name + '</h4>';
+                    superheroInfo += '<p>' + superheroes[0].bio + '</p>';
+                }
+    
+                document.getElementById('superhero-info').innerHTML = superheroInfo;
+            });
+        } else {
+            // if the search input is empty, return the original list of superheroes
+            if(originalSuperheroes === null) {
+                fetch('superheroes.php')
+                .then(response => response.text())
+                .then(data => {
+                    originalSuperheroes = data.split('|||').map(superhero => JSON.parse(superhero));
+                    displaySuperheroes(originalSuperheroes);
+                });
+            } else {
+                displaySuperheroes(originalSuperheroes);
+            }
+        }
+    });
+    
+    
 });
+
+
